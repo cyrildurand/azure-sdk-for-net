@@ -70,6 +70,20 @@ namespace Batch.Tests.ScenarioTests
                     Assert.Single(accounts);
                     Assert.Equal(batchAccountName, accounts.First().Name);
 
+                    IPage<OutboundEnvironmentEndpoint> endpointsResponse = await this.BatchManagementClient.BatchAccount.ListOutboundNetworkDependenciesEndpointsAsync(resourceGroupName, batchAccount.Name);
+                    List<OutboundEnvironmentEndpoint> endpoints = new List<OutboundEnvironmentEndpoint>();
+
+                    do
+                    {
+                        endpointsResponse = await this.BatchManagementClient.BatchAccount.ListOutboundNetworkDependenciesEndpointsAsync(resourceGroupName, batchAccount.Name);
+                        endpoints.AddRange(endpointsResponse);
+                        nextLink = endpointsResponse.NextPageLink;
+                    }
+                    while (nextLink != null);
+
+                    Assert.NotEmpty(endpoints);
+                    Assert.True(endpoints.First().Endpoints.Count() > 0);
+
                     // Delete the account
                     try
                     {
@@ -185,6 +199,5 @@ namespace Batch.Tests.ScenarioTests
                 }
             }
         }
-
     }
 }
